@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Based on [Add New Assertions for Enhanced Testing Capabilities](https://github.com/scripterio-js/scripterio/issues/63):
-    - `toBeTypeOf()` — Check that a variable has a correct type
+**Features:**
+- Filter tests by tags (HTML reporter). Addressed in [#66](https://github.com/scripterio-js/scripterio/issues/66).
+- Assertion `toBeTypeOf()` — Check that a variable has a correct type. Addressed in [#63](https://github.com/scripterio-js/scripterio/issues/63).
 
-- Contributors:
+***Contributors:***
   - [Vadym Nastoiashchyi](https://github.com/VadimNastoyashchy)
 
 ## 1.11.0 - 2025-07-08
