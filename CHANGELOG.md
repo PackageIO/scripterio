@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+**Features:**
+- Filter tests by tags (HTML reporter). Addressed in [#66](https://github.com/scripterio-js/scripterio/issues/66).
+- Assertion `toBeTypeOf()` — Check that a variable has a correct type. Addressed in [#63](https://github.com/scripterio-js/scripterio/issues/63).
+
+***Contributors:***
+  - [Vadym Nastoiashchyi](https://github.com/VadimNastoyashchy)
 
 ## 1.11.0 - 2025-07-08
 ### Added

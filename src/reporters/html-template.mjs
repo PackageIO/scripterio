@@ -21,6 +21,25 @@ const formatJson = (data) => {
   }
 }
 
+const extractUniqueTags = (results) => {
+  const tagSet = new Set()
+
+  const extractTagsFromTests = (tests) => {
+    tests.forEach((test) => {
+      if (test.tags && Array.isArray(test.tags)) {
+        test.tags.forEach((tag) => {
+          if (tag && tag.trim()) {
+            tagSet.add(tag.trim())
+          }
+        })
+      }
+    })
+  }
+
+  extractTagsFromTests(results)
+  return Array.from(tagSet).sort()
+}
+
 export const template = ({
   numTests,
   numPassed,
@@ -28,6 +47,8 @@ export const template = ({
   numTodo,
   results,
 }) => {
+  const uniqueTags = extractUniqueTags(results)
+
   return `
 <!DOCTYPE html>
 <html>
@@ -204,6 +225,63 @@ export const template = ({
       overflow-y: auto;
       white-space: pre-wrap;
     }
+    
+    /* Tag styles */
+    .tag-filters {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+    .tag-filters h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      color: #555;
+    }
+    .tag-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .tag-button {
+      padding: 0.25rem 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .tag-button:hover {
+      background: #f0f0f0;
+    }
+    .tag-button.active {
+      background: #1976d2;
+      color: white;
+      border-color: #1976d2;
+    }
+    .tag-button.clear {
+      background: #f44336;
+      color: white;
+      border-color: #f44336;
+    }
+    .tag-button.clear:hover {
+      background: #d32f2f;
+    }
+    .test-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+    .test-tag {
+      padding: 0.125rem 0.5rem;
+      background: #e3f2fd;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      color: #1976d2;
+      border: 1px solid #bbdefb;
+    }
   </style>
 </head>
 <body>
@@ -234,12 +312,37 @@ export const template = ({
       </div>
     </div>
 
+    ${
+      uniqueTags.length > 0
+        ? `
+    <div class="tag-filters">
+      <h3>Filter by Tags:</h3>
+      <div class="tag-buttons">
+        <button class="tag-button clear" onclick="setTagFilter(null)">Clear Filters</button>
+        ${uniqueTags
+          .map(
+            (tag) => `
+          <button class="tag-button" onclick="setTagFilter('${escapeHtml(
+            tag
+          )}')">${escapeHtml(tag)}</button>
+        `
+          )
+          .join('')}
+      </div>
+    </div>
+    `
+        : ''
+    }
+
     <div class="results">
         ${renderDescribeGroup(groupByDescribe(results))}
     </div>
   </div>
 
   <script>
+    let currentTagFilter = null;
+    let currentStatusFilter = null;
+
     function toggleDescribeContent(element) {
       const content = element.nextElementSibling;
       content.classList.toggle('hide');
@@ -259,7 +362,26 @@ export const template = ({
       element.textContent = isShowing ? 'Show API details' : 'Hide API details';
     }
 
+    function setTagFilter(tag) {
+      currentTagFilter = tag;
+      
+      document.querySelectorAll('.tag-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      if (tag) {
+        const tagButton = document.querySelector(\`.tag-button[onclick*="'\${tag}'"]\`);
+        if (tagButton) tagButton.classList.add('active');
+      } else {
+        document.querySelector('.tag-button.clear').classList.add('active');
+      }
+      
+      applyFilters();
+    }
+
     function setFilter(filter) {
+      currentStatusFilter = filter;
+      
       document.querySelectorAll('.stat').forEach(stat => {
         stat.classList.remove('active-filter');
       });
@@ -268,14 +390,30 @@ export const template = ({
       } else {
         document.querySelector('.stat.total').classList.add('active-filter');
       }
+      
+      applyFilters();
+    }
 
+    function applyFilters() {
       document.querySelectorAll('.test-case').forEach(tc => {
         const nameDiv = tc.querySelector('.test-name');
-        if (!filter || nameDiv.classList.contains(filter)) {
-          tc.style.display = '';
-        } else {
-          tc.style.display = 'none';
+        const testTags = tc.querySelectorAll('.test-tag');
+        const tagTexts = Array.from(testTags).map(tag => tag.textContent);
+        
+        let showByStatus = true;
+        let showByTag = true;
+        
+        // Status filter
+        if (currentStatusFilter && currentStatusFilter !== 'total') {
+          showByStatus = nameDiv.classList.contains(currentStatusFilter);
         }
+        
+        // Tag filter
+        if (currentTagFilter) {
+          showByTag = tagTexts.includes(currentTagFilter);
+        }
+        
+        tc.style.display = (showByStatus && showByTag) ? '' : 'none';
       });
 
       function updateDescribeVisibility(describe) {
@@ -301,6 +439,7 @@ export const template = ({
         describe.style.display = hasVisible ? '' : 'none';
         return hasVisible;
       }
+      
       document.querySelectorAll('.describe-group').forEach(group => {
         updateDescribeVisibility(group);
       });
@@ -312,6 +451,10 @@ export const template = ({
       document.querySelector('.stat.failed').addEventListener('click', () => setFilter('failed'));
       document.querySelector('.stat.todo').addEventListener('click', () => setFilter('todo'));
       document.querySelector('.stat.total').classList.add('active-filter');
+      
+      if (document.querySelector('.tag-button.clear')) {
+        document.querySelector('.tag-button.clear').classList.add('active');
+      }
     });
   </script>
   <style>
@@ -407,6 +550,17 @@ export const template = ({
           typeof test.duration === 'number' ? `${test.duration} ms` : ''
         }</span>
       </div>
+      ${
+        test.tags && test.tags.length > 0
+          ? `
+        <div class="test-tags">
+          ${test.tags
+            .map((tag) => `<span class="test-tag">${escapeHtml(tag)}</span>`)
+            .join('')}
+        </div>
+      `
+          : ''
+      }
       ${
         test.errors.length
           ? `
