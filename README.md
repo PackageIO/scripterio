@@ -12,6 +12,7 @@
 
 - [Documentation](https://scripterio-js.github.io/scripterio/)
 - [Release Notes / History / Changes](./CHANGELOG.md)
+- [Release Strategy](./RELEASING.md)
 - [Contributing](./CONTRIBUTING.md)
 - [Issue Tracker](https://github.com/TheRootSoft/scripterio/issues)
 - [NPM Package](https://www.npmjs.com/package/@therootsoft/scripterio)

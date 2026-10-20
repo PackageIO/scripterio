@@ -1,21 +1,11 @@
 name: Release package
 on:
-  workflow_dispatch:
-    inputs:
-      release-type:
-        type: choice
-        required: true
-        description: 'Release type:'
-        default: 'patch'
-        options:
-          - 'patch'
-          - 'minor'
-          - 'major'
-          - 'prepatch'
-          - 'preminor'
-          - 'premajor'
-          - 'prerelease'
-permissions: write-all
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: write
+  id-token: write
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -26,69 +16,36 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          registry-url: https://registry.npmjs.org/
           node-version: '24'
+          registry-url: https://registry.npmjs.org/
+          package-manager-cache: false
 
-      - name: Git configuration
+      - name: Ensure npm supports trusted publishing
+        run: npm install --global 'npm@^11.5.1'
+
+      - name: Verify tag matches package version
         run: |
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "GitHub Actions"
+          package_version="$(node -p "require('./package.json').version")"
+          tag_version="${GITHUB_REF_NAME#v}"
+          if [ "$tag_version" != "$package_version" ]; then
+            echo "::error::Tag v$tag_version does not match package.json version $package_version."
+            exit 1
+          fi
 
-      - name: Bump release version
-        if: startsWith(github.event.inputs.release-type, 'pre') != true
-        run: |
-          echo "NEW_VERSION=$(npm --no-git-tag-version version $RELEASE_TYPE)" >> $GITHUB_ENV
-          echo "RELEASE_TAG=latest" >> $GITHUB_ENV
-        env:
-          RELEASE_TYPE: ${{ github.event.inputs.release-type }}
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Bump pre-release version
-        if: startsWith(github.event.inputs.release-type, 'pre')
-        run: |
-          echo "NEW_VERSION=$(npm --no-git-tag-version --preid=beta version $RELEASE_TYPE)" >> $GITHUB_ENV
-          echo "RELEASE_TAG=beta" >> $GITHUB_ENV
-        env:
-          RELEASE_TYPE: ${{ github.event.inputs.release-type }}
+      - name: Run tests
+        run: npm test
 
-      - name: Update changelog
-        uses: superfaceai/release-changelog-action@v2
-        with:
-          path-to-changelog: CHANGELOG.md
-          version: ${{ env.NEW_VERSION }}
-          operation: release
+      - name: Verify package contents
+        run: npm pack --dry-run
 
-      - name: Commit CHANGELOG.md and package.json changes and create tag
-        run: |
-          git add "package.json"
-          git add "package-lock.json"
-          git add "CHANGELOG.md"
-          git commit -m "chore: release ${{ env.NEW_VERSION }}"
-          git tag ${{ env.NEW_VERSION }}
+      - name: Publish to npm
+        run: npm publish --access public
 
-      - name: Publish
-        run: yarn publish --verbose --access public --tag ${{ env.RELEASE_TAG }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Push changes to repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push origin && git push --tags
-
-      - id: get-changelog
-        name: Get version changelog
-        uses: superfaceai/release-changelog-action@v2
-        with:
-          path-to-changelog: CHANGELOG.md
-          version: ${{ env.NEW_VERSION }}
-          operation: read
-
-      - name: Update GitHub release documentation
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ env.NEW_VERSION }}
-          body: ${{ steps.get-changelog.outputs.changelog }}
-          prerelease: ${{ startsWith(github.event.inputs.release-type, 'pre') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
