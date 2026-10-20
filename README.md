@@ -13,8 +13,8 @@
 - [Documentation](https://scripterio-js.github.io/scripterio/)
 - [Release Notes / History / Changes](./CHANGELOG.md)
 - [Contributing](./CONTRIBUTING.md)
-- [Issue Tracker](https://github.com/VadimNastoyashchy/scripterio/issues)
-- [NPM Package](https://www.npmjs.com/package/scripterio)
+- [Issue Tracker](https://github.com/TheRootSoft/scripterio/issues)
+- [NPM Package](https://www.npmjs.com/package/@therootsoft/scripterio)
 
 ---
 
@@ -58,9 +58,9 @@
 Install for Mac, Linux, or Windows:
 
 ```bash
-npm install scripterio --save-dev
+npm install @therootsoft/scripterio --save-dev
 //or
-yarn add scripterio --dev
+yarn add @therootsoft/scripterio --dev
 ```
 
 ## Write your first test:
@@ -79,7 +79,7 @@ Let's start by creating the `test.js` test file:
 test.js
 
 ```js
-import { describe, test, expect} from 'scripterio'
+import { describe, test, expect} from '@therootsoft/scripterio'
 
 describe('Unit tests:', () => {
   test('Array has correct length', () => {
@@ -340,7 +340,7 @@ ScripterI/O has built-in http client to preform the request.
 test.js
 
 ```js
-import { describe, test, expect, request} from 'scripterio'
+import { describe, test, expect, request} from '@therootsoft/scripterio'
 
 describe('Example of http client', () => {
   test('Demonstrate get() method to get single object', async () => {

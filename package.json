@@ -1,5 +1,5 @@
 {
-  "name": "scripterio",
+  "name": "@therootsoft/scripterio",
   "version": "1.11.0",
   "description": "ScripterI/O - Simple, fast, runner for testing all JavaScript",
   "type": "module",
@@ -38,12 +38,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/VadimNastoyashchy/scripterio.git"
+    "url": "git+https://github.com/TheRootSoft/scripterio.git"
   },
   "bugs": {
-    "url": "https://github.com/VadimNastoyashchy/scripterio/issues"
+    "url": "https://github.com/TheRootSoft/scripterio/issues"
   },
-  "homepage": "https://github.com/VadimNastoyashchy/scripterio#readme",
+  "homepage": "https://github.com/TheRootSoft/scripterio#readme",
   "devDependencies": {
     "eslint": "^8.56.0",
     "eslint-config-standard": "^17.1.0",
