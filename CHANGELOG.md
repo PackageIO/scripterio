@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 2.0.0 - 2026-10-20
+### Breaking Changes
+- The npm package is now published as `@therootsoft/scripterio`. Update install commands and imports to use the scoped name. The CLI command remains `scripterio`.
+
 ## 1.11.0 - 2025-07-08
 ### Added
 - Based on [Add `only` as an annotation for `describe`/`test`](https://github.com/scripterio-js/scripterio/issues/14):
