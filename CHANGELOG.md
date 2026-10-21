@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 2.0.1 - 2026-10-21
+### Breaking Changes
+- Rename the npm package scope to `@packageio`; update install commands and imports accordingly.
+
+### Changed
+- Update repository links to the `PackageIO` organization.
+
 ## 2.0.0 - 2026-10-20
 ### Breaking Changes
 - The npm package is now published as `@therootsoft/scripterio`. Update install commands and imports to use the scoped name. The CLI command remains `scripterio`.

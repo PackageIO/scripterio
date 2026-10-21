@@ -31,9 +31,9 @@ ScripterI/O is specifically designed with modern ECMAScript Modules (ESM) in min
 Install for Mac, Linux, or Windows:
 
 ```bash
-npm install @therootsoft/scripterio --save-dev
+npm install @packageio/scripterio --save-dev
 //or
-yarn add @therootsoft/scripterio --dev
+yarn add @packageio/scripterio --dev
 ```
 
 ## Write your first test:
@@ -52,7 +52,7 @@ Let's start by creating the `test.js` test file:
 test.js
 
 ```js
-import { describe, test, expect} from '@therootsoft/scripterio'
+import { describe, test, expect} from '@packageio/scripterio'
 
 describe('Unit tests:', () => {
   test('Array has correct length', () => {
@@ -314,7 +314,7 @@ ScripterI/O has built-in http client to preform the request.
 test.js
 
 ```js
-import { describe, test, expect, request} from '@therootsoft/scripterio'
+import { describe, test, expect, request} from '@packageio/scripterio'
 
 describe('Example of http client', () => {
   test('Demonstrate get() method to get single object', async () => {
